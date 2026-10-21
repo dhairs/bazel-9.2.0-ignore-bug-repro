@@ -1,0 +1,2 @@
+This file should never be picked up (and won't) but this is just where we want to
+point Bazel's new .bazelignore to

@@ -1,0 +1,5 @@
+genrule(
+    name = "seed",
+    outs = ["seed.txt"],
+    cmd = "echo seed > $@",
+)

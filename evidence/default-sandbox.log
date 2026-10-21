@@ -1,0 +1,122 @@
+OUTPUT_BASE=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.3oVdZGJFjP
+NOTE: no --spawn_strategy flag; Bazel chooses the host default.
+===== 1. establish old ignore state =====
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.3oVdZGJFjP build --verbose_failures //:seed
+Starting local Bazel server (9.2.0) and connecting to it...
+Computing main repo mapping: 
+Loading: 
+Loading: 0 packages loaded
+Analyzing: target //:seed (5 packages loaded, 6 targets configured)
+Analyzing: target //:seed (5 packages loaded, 6 targets configured)
+
+INFO: Analyzed target //:seed (6 packages loaded, 8 targets configured).
+INFO: Found 1 target...
+Target //:seed up-to-date:
+  bazel-bin/seed.txt
+INFO: Elapsed time: 4.316s, Critical Path: 0.06s
+INFO: 2 processes: 1 internal, 1 darwin-sandbox.
+INFO: Build completed successfully, 2 total actions
+EXIT:0
+SEED_EXIT:0
+===== 2. narrow ignore, first copy (expected fail) =====
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.3oVdZGJFjP build --verbose_failures //vendored/flatcc:copy
+Computing main repo mapping: 
+Loading: 
+Loading: 0 packages loaded
+Analyzing: target //vendored/flatcc:copy (3 packages loaded, 2 targets configured)
+Analyzing: target //vendored/flatcc:copy (3 packages loaded, 2 targets configured)
+
+INFO: Analyzed target //vendored/flatcc:copy (3 packages loaded, 4 targets configured).
+ERROR: /Users/dhairya/Documents/bazel-repro/vendored/flatcc/BUILD.bazel:1:8: Executing genrule //vendored/flatcc:copy failed: (Exit 1): bash failed: error executing Genrule command (from genrule rule target //vendored/flatcc:copy) 
+  (cd /private/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.3oVdZGJFjP/sandbox/darwin-sandbox/2/execroot/_main && \
+  exec env - \
+    PATH=/bin:/usr/bin:/usr/local/bin \
+  /bin/bash -c 'source external/bazel_tools/tools/genrule/genrule-setup.sh; /bin/cat vendored/flatcc/input.txt > bazel-out/darwin_arm64-fastbuild/bin/vendored/flatcc/copy.txt')
+# Configuration: 2d8934052f1445fdec9fefac5a616f1fb9d9dea67b8c1b3f6e1572370634272c
+# Execution platform: @@platforms//host:host
+
+Use --sandbox_debug to see verbose messages from the sandbox and retain the sandbox build root for debugging
+cat: vendored/flatcc/input.txt: No such file or directory
+Target //vendored/flatcc:copy failed to build
+INFO: Elapsed time: 0.125s, Critical Path: 0.04s
+INFO: 2 processes: 2 internal.
+ERROR: Build did NOT complete successfully
+EXIT:1
+FIRST_COPY_EXIT:1
+===== 3. identical retry (expected pass) =====
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.3oVdZGJFjP build --verbose_failures //vendored/flatcc:copy
+Computing main repo mapping: 
+Loading: 
+Loading: 0 packages loaded
+Analyzing: target //vendored/flatcc:copy (0 packages loaded, 0 targets configured)
+Analyzing: target //vendored/flatcc:copy (0 packages loaded, 0 targets configured)
+
+INFO: Analyzed target //vendored/flatcc:copy (0 packages loaded, 0 targets configured).
+INFO: Found 1 target...
+Target //vendored/flatcc:copy up-to-date:
+  bazel-bin/vendored/flatcc/copy.txt
+INFO: Elapsed time: 0.152s, Critical Path: 0.10s
+INFO: 2 processes: 1 internal, 1 darwin-sandbox.
+INFO: Build completed successfully, 2 total actions
+EXIT:0
+RETRY_COPY_EXIT:0
+===== copy.txt =====
+original input
+
+===== 4. settle, change input, query, build =====
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.3oVdZGJFjP build --verbose_failures //:seed
+Computing main repo mapping: 
+Loading: 
+Loading: 0 packages loaded
+Analyzing: target //:seed (3 packages loaded, 2 targets configured)
+Analyzing: target //:seed (3 packages loaded, 2 targets configured)
+
+INFO: Analyzed target //:seed (3 packages loaded, 3 targets configured).
+INFO: Found 1 target...
+Target //:seed up-to-date:
+  bazel-bin/seed.txt
+INFO: Elapsed time: 0.056s, Critical Path: 0.00s
+INFO: 1 process: 1 action cache hit, 1 internal.
+INFO: Build completed successfully, 1 total action
+EXIT:0
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.3oVdZGJFjP build --verbose_failures //:seed
+Computing main repo mapping: 
+Loading: 
+Loading: 0 packages loaded
+Analyzing: target //:seed (0 packages loaded, 0 targets configured)
+Analyzing: target //:seed (0 packages loaded, 0 targets configured)
+
+INFO: Analyzed target //:seed (0 packages loaded, 0 targets configured).
+INFO: Found 1 target...
+Target //:seed up-to-date:
+  bazel-bin/seed.txt
+INFO: Elapsed time: 0.040s, Critical Path: 0.00s
+INFO: 1 process: 1 internal.
+INFO: Build completed successfully, 1 total action
+EXIT:0
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.3oVdZGJFjP query //:seed >/dev/null
+Loading: 0 packages loaded
+QUERY_EXIT:0
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.3oVdZGJFjP build --verbose_failures //vendored/flatcc:copy
+Computing main repo mapping: 
+Loading: 
+Loading: 0 packages loaded
+Analyzing: target //vendored/flatcc:copy (3 packages loaded, 2 targets configured)
+Analyzing: target //vendored/flatcc:copy (3 packages loaded, 2 targets configured)
+
+INFO: Analyzed target //vendored/flatcc:copy (3 packages loaded, 4 targets configured).
+INFO: Found 1 target...
+Target //vendored/flatcc:copy up-to-date:
+  bazel-bin/vendored/flatcc/copy.txt
+INFO: Elapsed time: 0.081s, Critical Path: 0.03s
+INFO: 2 processes: 1 internal, 1 darwin-sandbox.
+INFO: Build completed successfully, 2 total actions
+EXIT:0
+WORKAROUND_BUILD_EXIT:0
+===== copy.txt after workaround =====
+different input
+
+===== shutdown this output base only =====
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.3oVdZGJFjP shutdown
+EXIT:0
+SHUTDOWN_EXIT:0

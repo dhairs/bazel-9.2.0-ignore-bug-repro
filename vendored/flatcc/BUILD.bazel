@@ -1,0 +1,6 @@
+genrule(
+    name = "copy",
+    srcs = ["input.txt"],
+    outs = ["copy.txt"],
+    cmd = "/bin/cat $(location input.txt) > $@",
+)

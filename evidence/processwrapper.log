@@ -1,0 +1,159 @@
+===== environment =====
+Wed Oct 21 17:48:32 CDT 2026
+Darwin BP-D2XT9DT9RW 25.6.0 Darwin Kernel Version 25.6.0: Fri Jul 31 19:16:20 PDT 2026; root:xnu-12377.161.14~5/RELEASE_ARM64_T8142 arm64
+ProductName:		macOS
+ProductVersion:		26.6.2
+BuildVersion:		25G83
+repo=/Users/dhairya/Documents/bazel-repro
+bazelisk=/opt/homebrew/bin/bazelisk
+Bazelisk version: 1.29.0
+Build label: 9.2.0
+Build target: @@//src/main/java/com/google/devtools/build/lib/bazel:BazelServer
+Build time: Mon Jul 13 18:19:39 2026 (1783966779)
+Build timestamp: 1783966779
+Build timestamp as int: 1783966779
+OUTPUT_BASE=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.ALMeFvB7CP
+===== 1. establish old ignore state =====
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.ALMeFvB7CP build --spawn_strategy=processwrapper-sandbox --verbose_failures //:seed
+Starting local Bazel server (9.2.0) and connecting to it...
+Computing main repo mapping: 
+Loading: 
+Loading: 0 packages loaded
+Analyzing: target //:seed (5 packages loaded, 6 targets configured)
+Analyzing: target //:seed (5 packages loaded, 6 targets configured)
+
+INFO: Analyzed target //:seed (6 packages loaded, 8 targets configured).
+INFO: Found 1 target...
+Target //:seed up-to-date:
+  bazel-bin/seed.txt
+INFO: Elapsed time: 1.528s, Critical Path: 0.04s
+INFO: 2 processes: 1 internal, 1 processwrapper-sandbox.
+INFO: Build completed successfully, 2 total actions
+EXIT:0
+SEED_EXIT:0
+===== 2. stop ignoring the parent directory =====
+bazelignore now:
+vendored/st$
+===== 3. first copy build (expected: fail, input.txt missing) =====
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.ALMeFvB7CP build --spawn_strategy=processwrapper-sandbox --verbose_failures //vendored/flatcc:copy
+Computing main repo mapping: 
+Loading: 
+Loading: 0 packages loaded
+Analyzing: target //vendored/flatcc:copy (3 packages loaded, 2 targets configured)
+Analyzing: target //vendored/flatcc:copy (3 packages loaded, 2 targets configured)
+
+INFO: Analyzed target //vendored/flatcc:copy (3 packages loaded, 4 targets configured).
+ERROR: /Users/dhairya/Documents/bazel-repro/vendored/flatcc/BUILD.bazel:1:8: Executing genrule //vendored/flatcc:copy failed: (Exit 1): bash failed: error executing Genrule command (from genrule rule target //vendored/flatcc:copy) 
+  (cd /private/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.ALMeFvB7CP/sandbox/processwrapper-sandbox/2/execroot/_main && \
+  exec env - \
+    PATH=/bin:/usr/bin:/usr/local/bin \
+  /bin/bash -c 'source external/bazel_tools/tools/genrule/genrule-setup.sh; /bin/cat vendored/flatcc/input.txt > bazel-out/darwin_arm64-fastbuild/bin/vendored/flatcc/copy.txt')
+# Configuration: 2d8934052f1445fdec9fefac5a616f1fb9d9dea67b8c1b3f6e1572370634272c
+# Execution platform: @@platforms//host:host
+
+Use --sandbox_debug to see verbose messages from the sandbox and retain the sandbox build root for debugging
+cat: vendored/flatcc/input.txt: No such file or directory
+Target //vendored/flatcc:copy failed to build
+INFO: Elapsed time: 0.110s, Critical Path: 0.03s
+INFO: 2 processes: 2 internal.
+ERROR: Build did NOT complete successfully
+EXIT:1
+FIRST_COPY_EXIT:1
+===== 4. identical retry (expected: pass, no restart) =====
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.ALMeFvB7CP build --spawn_strategy=processwrapper-sandbox --verbose_failures //vendored/flatcc:copy
+Computing main repo mapping: 
+Loading: 
+Loading: 0 packages loaded
+Analyzing: target //vendored/flatcc:copy (0 packages loaded, 0 targets configured)
+Analyzing: target //vendored/flatcc:copy (0 packages loaded, 0 targets configured)
+
+INFO: Analyzed target //vendored/flatcc:copy (0 packages loaded, 0 targets configured).
+INFO: Found 1 target...
+Target //vendored/flatcc:copy up-to-date:
+  bazel-bin/vendored/flatcc/copy.txt
+INFO: Elapsed time: 0.063s, Critical Path: 0.02s
+INFO: 2 processes: 1 internal, 1 processwrapper-sandbox.
+INFO: Build completed successfully, 2 total actions
+EXIT:0
+RETRY_COPY_EXIT:0
+===== bazel-bin/vendored/flatcc/copy.txt =====
+original input
+
+RETRY_CAT_EXIT:0
+===== 5. restore and settle the old ignore state =====
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.ALMeFvB7CP build --spawn_strategy=processwrapper-sandbox --verbose_failures //:seed
+Computing main repo mapping: 
+Loading: 
+Loading: 0 packages loaded
+Analyzing: target //:seed (3 packages loaded, 2 targets configured)
+Analyzing: target //:seed (3 packages loaded, 2 targets configured)
+
+INFO: Analyzed target //:seed (3 packages loaded, 3 targets configured).
+INFO: Found 1 target...
+Target //:seed up-to-date:
+  bazel-bin/seed.txt
+INFO: Elapsed time: 0.055s, Critical Path: 0.00s
+INFO: 1 process: 1 action cache hit, 1 internal.
+INFO: Build completed successfully, 1 total action
+EXIT:0
+SETTLE_1_EXIT:0
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.ALMeFvB7CP build --spawn_strategy=processwrapper-sandbox --verbose_failures //:seed
+Computing main repo mapping: 
+Loading: 
+Loading: 0 packages loaded
+Analyzing: target //:seed (0 packages loaded, 0 targets configured)
+Analyzing: target //:seed (0 packages loaded, 0 targets configured)
+
+INFO: Analyzed target //:seed (0 packages loaded, 0 targets configured).
+INFO: Found 1 target...
+Target //:seed up-to-date:
+  bazel-bin/seed.txt
+INFO: Elapsed time: 0.041s, Critical Path: 0.00s
+INFO: 1 process: 1 internal.
+INFO: Build completed successfully, 1 total action
+EXIT:0
+SETTLE_2_EXIT:0
+===== 6. change input, narrow ignore, query, then build =====
+input.txt now:
+different input$
+bazelignore now:
+vendored/st$
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.ALMeFvB7CP query //:seed >/dev/null
+Loading: 0 packages loaded
+QUERY_EXIT:0
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.ALMeFvB7CP build --spawn_strategy=processwrapper-sandbox --verbose_failures //vendored/flatcc:copy
+Computing main repo mapping: 
+Loading: 
+Loading: 0 packages loaded
+Analyzing: target //vendored/flatcc:copy (3 packages loaded, 2 targets configured)
+Analyzing: target //vendored/flatcc:copy (3 packages loaded, 2 targets configured)
+
+INFO: Analyzed target //vendored/flatcc:copy (3 packages loaded, 4 targets configured).
+INFO: Found 1 target...
+Target //vendored/flatcc:copy up-to-date:
+  bazel-bin/vendored/flatcc/copy.txt
+INFO: Elapsed time: 0.072s, Critical Path: 0.02s
+INFO: 2 processes: 1 internal, 1 processwrapper-sandbox.
+INFO: Build completed successfully, 2 total actions
+EXIT:0
+WORKAROUND_BUILD_EXIT:0
+===== bazel-bin/vendored/flatcc/copy.txt after workaround =====
+different input
+
+WORKAROUND_CAT_EXIT:0
+===== bazel version (same server) =====
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.ALMeFvB7CP version
+Bazelisk version: 1.29.0
+Build label: 9.2.0
+Build target: @@//src/main/java/com/google/devtools/build/lib/bazel:BazelServer
+Build time: Mon Jul 13 18:19:39 2026 (1783966779)
+Build timestamp: 1783966779
+Build timestamp as int: 1783966779
+EXIT:0
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.ALMeFvB7CP info release
+release 9.2.0
+EXIT:0
+===== shutdown this output base only =====
++ bazelisk --ignore_all_rc_files --output_base=/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.ALMeFvB7CP shutdown
+EXIT:0
+SHUTDOWN_EXIT:0

@@ -1,0 +1,14 @@
+===== environment =====
+Wed Oct 21 17:48:32 CDT 2026
+Darwin BP-D2XT9DT9RW 25.6.0 Darwin Kernel Version 25.6.0: Fri Jul 31 19:16:20 PDT 2026; root:xnu-12377.161.14~5/RELEASE_ARM64_T8142 arm64
+ProductName:		macOS
+ProductVersion:		26.6.2
+BuildVersion:		25G83
+repo=/Users/dhairya/Documents/bazel-repro
+bazelisk=/opt/homebrew/bin/bazelisk
+Bazelisk version: 1.29.0
+Build label: 9.2.0
+Build target: @@//src/main/java/com/google/devtools/build/lib/bazel:BazelServer
+Build time: Mon Jul 13 18:19:39 2026 (1783966779)
+Build timestamp: 1783966779
+Build timestamp as int: 1783966779
