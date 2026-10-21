@@ -2,7 +2,7 @@
 # Reproduce the .bazelignore stale-state bug on one persistent Bazel server.
 # Do not use set -e: the first //vendored/flatcc:copy failure is intentional.
 
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")"
 repo=$(pwd)
 
 {

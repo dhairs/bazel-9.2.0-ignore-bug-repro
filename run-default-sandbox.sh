@@ -3,7 +3,7 @@
 # Fresh output base, so it cannot reuse the processwrapper-sandbox server.
 # linux-sandbox is not available on Darwin.
 
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")"
 
 printf 'vendored\n' > .bazelignore
 printf 'original input\n' > vendored/flatcc/input.txt
