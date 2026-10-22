@@ -25,7 +25,7 @@ I also reproduced this on a nixOS linux image, so I don't think this is an os-sp
 
 You can reproduce if you have bazelisk on your machine by running `run.sh` and `run-default-sandbox.sh` 
 
-The script that produced the log is `evidence/run.sh`. Output base: `/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.ALMeFvB7CP`. Full log: `evidence/processwrapper.log`.
+The script that produced the log is `run.sh`. Output base: `/var/folders/qq/497d7tcs3835cj30nnfqc0900000gn/T/tmp.ALMeFvB7CP`. Full log: `evidence/processwrapper.log`.
 
 ## Processwrapper-sandbox
 
